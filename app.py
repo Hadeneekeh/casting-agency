@@ -106,6 +106,85 @@ def create_app(test_config=None):
 		except:
 			abort(422)
 
+	
+	# Movie routes
+	@app.route('/movies')
+	@requires_auth('get:movies')
+	def list_movies(jwt):
+		try:
+			movies = Movies.query.all()
+			formatted_movies = [movie.format() for movie in movies]
+
+			return jsonify({
+				'success': True,
+				'movies': formatted_movies
+			}), 200
+		except:
+			abort(500)
+
+	@app.route('/movies', methods=['POST'])
+	@requires_auth("add:movies")
+	def add_movie(jwt):
+		try:
+			get_input = request.get_json()
+
+			title = get_input["title"]
+			release_date = get_input["release_date"]
+
+			if title=='' or release_date=='':
+				abort(400)
+			else:
+				new_movie = Movies(title=title, release_date=release_date)
+				new_movie.insert()
+
+				return jsonify({
+					"success": True,
+					"movie": movie.format()
+					}), 201
+		except:
+			abort(422)
+
+	@app.route("/movies/<id>", methods=["PATCH"])
+	@requires_auth("edit:movies")
+	def update_movie(jwt, id):
+		movie = Movies.query.filter(movie.id == id).one_or_none()
+		if movie is None:
+			abort(404)
+		try:
+			title = request.get_json()["title"]
+			if title == "":
+				abort(400)
+			else:
+				movie.title = title
+				movie.update()
+
+				return jsonify({
+					"success": True,
+					"movie": [movie.format()]
+					}), 200
+		except:
+			abort(422)
+
+
+	@app.route("/movies/<id>", methods=["DELETE"])
+	@requires_auth("delete:movie")
+	def delete_movie(jwt, id):
+		try:
+			movie = Movies.query.filter(movie.id == id).one_or_none()
+			if movie is None:
+				abort(404)
+			else:
+				movie.delete()
+
+				return jsonify({
+					"success": True,
+					"delete": id
+					}), 200
+		except:
+			abort(422)
+
+
+
 
     return app
 
