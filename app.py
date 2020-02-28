@@ -184,7 +184,58 @@ def create_app(test_config=None):
 			abort(422)
 
 
+	# Error Handling
+	@app.errorhandler(404)
+	def resource_not_found(error):
+		return (
+			jsonify({
+				"success": False, "error": 404, "message": "resource not found"}),
+			404,
+		)
 
+	@app.errorhandler(422)
+	def unprocessable(error):
+		return jsonify({
+			"success": False, "error": 422, "message": "unprocessable"}), 422
+
+	@app.errorhandler(500)
+	def server_error(error):
+		return (
+			jsonify({
+				"success": False, "error": 500, "message": "Server Error"}),
+			500,
+		)
+
+	@app.errorhandler(400)
+	def bad_request(error):
+		return (
+			jsonify(
+				{
+					"success": False,
+					"error": 400,
+					"message": "Bad Request, please check your inputs",
+				}
+			),
+			400,
+		)
+
+	@app.errorhandler(401)
+	def unathorized(error):
+		return jsonify({
+			"success": False, "error": 401, "message": error.description, }), 401
+
+	@app.errorhandler(403)
+	def forbidden(error):
+		return (
+			jsonify(
+				{
+					"success": False,
+					"error": 403,
+					"message": "You are forbidden from accessing this resource",
+				}
+			),
+			403,
+		)
 
     return app
 
