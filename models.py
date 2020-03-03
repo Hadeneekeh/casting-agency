@@ -7,7 +7,10 @@ import json
 
 load_dotenv()
 
-database_path = os.getenv('DATABASE_URL')
+if os.getenv('ENV') == 'test':
+    database_path = os.getenv('TEST_DATABASE_URL')
+else:
+    database_path = os.getenv('DATABASE_URL')
 # database_path = 'postgresql://postgres:psql@localhost:5432/casting'
 
 db = SQLAlchemy()
@@ -98,8 +101,8 @@ class Actors(db.Model):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(80), unique=True, nullable=False)
-    age = Column(Integer, unique=True, nullable=False)
-    gender = Column(String, unique=True, nullable=False)
+    age = Column(Integer, nullable=False)
+    gender = Column(String, nullable=False)
 
     def format(self):
         return {
